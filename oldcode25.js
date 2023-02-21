@@ -3,14 +3,13 @@ const { open } = require("sqlite");
 const sqlite3 = require("sqlite3");
 var isValid = require("date-fns/isValid");
 const path = require("path");
-// console.log();
 
 const myApp = express();
 myApp.use(express.json());
 const dbPath = path.join(__dirname, "todoApplication.db");
 let database;
 
-const initializeServerAndDB = async () => {
+const initializeaServerAndDB = async () => {
   try {
     database = await open({
       filename: dbPath,
@@ -29,8 +28,7 @@ const statusValues = ["TO DO", "IN PROGRESS", "DONE"];
 const pvalues = ["HIGH", "MEDIUM", "LOW"];
 const categoryVal = ["WORK", "HOME", "LEARNING"];
 
-initializeServerAndDB();
-
+initializeaServerAndDB();
 const hasPriorityAndStatusProperties = (requestQuery) => {
   return (
     requestQuery.priority !== undefined && requestQuery.status !== undefined
@@ -54,13 +52,9 @@ myApp.get("/todos/", async (request, response) => {
   } = request.query;
   let newStatus = "";
   if (status !== "") {
-    const test = status.replace("%20", " ");
-    if (test === "TO DO") {
-      newStatus = "TO DO";
-    } else if (status === "IN PROGRESS") {
-      newStatus = "IN PROGRESS";
-    } else if (status === "DONE") {
-      newStatus = "DONE";
+    const statusSearch = ["TO%20DO", "IN%20PROGRESS", "DONE"];
+    if (statusSearch.includes(status)) {
+      newStatus = status.replace("%20", " ");
     } else {
       response.status(400);
       response.send("Invalid Todo Status");
@@ -82,24 +76,23 @@ myApp.get("/todos/", async (request, response) => {
       response.send("Invalid Todo Category");
     }
   }
-  //   if (priority === "HIGH" && status === "IN%20PROGRESS") {
-  //     const test1 = `
-  //       SELECT *
-  //       FROM todo
-  //       WHERE
-  //         priority = HIGH
-  //         AND status = IN PROGRESS`;
-  //     const resd = await database.all(test1);
-  //     response.send(resd);
-  //   }
+  if (priority === "HIGH" && status === "IN PROGRESS") {
+    const test1 = `
+      SELECT *
+      FROM todo
+      WHERE 
+        priority = HIGH
+        AND status = IN PROGRESS`;
+    const resd = await database.all(test1);
+    response.send(resd);
+  }
   const getTodo = `
     SELECT *
     FROM todo 
     WHERE priority LIKE '%${priority}%'
     AND status LIKE '%${newStatus}%'
     AND todo LIKE '%${search_q}%'
-    AND category LIKE '%${category}%'
-    `;
+    AND category LIKE '%${category}%'`;
   try {
     const res = await database.all(getTodo);
     response.send(
@@ -148,27 +141,22 @@ myApp.get("/todos/:todoId/", async (request, response) => {
 //api 3
 myApp.get("/agenda/", async (request, response) => {
   const { date } = request.query;
-  if (date === undefined) {
-    response.status(400);
-    response.send("Invalid Due Date");
-  } else {
-    const result = isValid(new Date(date));
-    if (result === true) {
-      const formattedDate = isValid(new Date(date), "yyyy-MM-dd");
-      const query = `
+  const result = isValid(new Date(date));
+  if (result === true) {
+    const formattedDate = isValid(new Date(date), "yyyy-MM-dd");
+    const query = `
         SELECT *
         FROM todo
         WHERE due_date = '${formattedDate}'`;
-      try {
-        const res = await database.all(query);
-        response.send(res);
-      } catch (e) {
-        console.log(e.message);
-      }
-    } else {
-      response.status(400);
-      response.send("Invalid Due Date");
+    try {
+      const res = await database.all(query);
+      response.send(res);
+    } catch (e) {
+      console.log(e.message);
     }
+  } else {
+    response.status(400);
+    response.send("Invalid Due Date");
   }
 });
 

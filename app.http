@@ -1,34 +1,33 @@
-GET http://localhost:3000/todos/?category=LEARNING&priority=HIGH
+GET http://localhost:3000/todos/?priority=MEDIUMS
 
 ###
-
 POST http://localhost:3000/todos/
 Content-Type: application/json
 
 {
-  "id": 7,
-  "todo": "Finalize event theme",
-  "priority": "LOW",
-  "status": "TO DO",
+  "id": 46,
+  "todo": "Finalize event theme3", 
+  "priority": "HIGH",
+  "status": "IN PROGRESS",
   "category": "HOME",
   "dueDate": "2021-02-22"
 }
 
 ###
 
-GET http://localhost:3000/todos/1/
+GET http://localhost:3000/todos/6/
 
 ###
 
-GET http://localhost:3000/agenda/?date=2021-01-12
+GET http://localhost:3000/agenda/?date=2021-1-22
 
 ###
 
-PUT http://localhost:3000/todos/1/
+PUT http://localhost:3000/todos/2/
 Content-Type: application/json
 
  {
-      "priority": "HIGH"
+      "dueDate": "2021-01-10"
     }
 
 ###
